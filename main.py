@@ -44,7 +44,7 @@ def dass_anxiety_score():
     columns = [15, 17, 20, 22, 28, 32, 33]
     score_column = 73
     SHEET_OBJ.cell(column=score_column, row=1, value="Anxiety Score")
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_one_empty_item=True)
     add_scores_to_file(scores, score_column)
 
 
@@ -53,7 +53,7 @@ def dass_pressure_score():
     columns = [14, 19, 21, 24, 25, 27, 31]
     score_column = 74
     SHEET_OBJ.cell(column=score_column, row=1, value="Pressure Score")
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_one_empty_item=True)
     add_scores_to_file(scores, score_column)
 
 
@@ -69,7 +69,7 @@ def PTSD_general_score():
 def criterion_B_score():
     # excel columns: AX:BB
     columns = list(range(50, 54 + 1))
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_last_item=True)
     score_column = 76
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion B Score - Re-experiencing")
     add_scores_to_file(scores, score_column)
@@ -78,7 +78,7 @@ def criterion_B_score():
 def criterion_C_score():
     # excel columns: BC:BD
     columns = list(range(55, 56 + 1))
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_last_item=True)
     score_column = 77
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion C Score - Avoidance")
     add_scores_to_file(scores, score_column)
@@ -87,7 +87,7 @@ def criterion_C_score():
 def criterion_D_score():
     # excel columns: BE:BK
     columns = list(range(57, 63 + 1))
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_last_item=True)
     score_column = 78
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion D Score - Negative alterations in cognition & mood")
     add_scores_to_file(scores, score_column)
@@ -96,7 +96,7 @@ def criterion_D_score():
 def criterion_E_score():
     # excel columns: BL:BQ
     columns = list(range(64, 69 + 1))
-    scores = calculate_score(columns)
+    scores = calculate_score(columns, check_last_item=True)
     score_column = 79
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion E Score -  Hyper-arousal")
     add_scores_to_file(scores, score_column)
@@ -108,15 +108,20 @@ def calculate_score(columns, check_last_item=False, check_one_empty_item=False):
     # if one item is empty the score  is "not_completed"
     # check_one_empty_item = False
     scores = []
+    break_out_flag = False
     for r in range(2, SHEET_OBJ.max_row+1):
         score = 0
         for c in columns:
             cell_obj = SHEET_OBJ.cell(row=r, column=c)
             if check_one_empty_item and cell_obj.value is None:
+                break_out_flag = True
                 score = "not completed"
-                continue
             if cell_obj.value is not None and isinstance(cell_obj.value, int):
                 score = score + cell_obj.value
+            if break_out_flag:
+                break
+            if check_last_item and c == columns[len(columns)-1] and cell_obj.value is None:
+                score = "not completed"
         if score == 0 or score == "not completed":
             score = "not completed"
         scores.append(score)

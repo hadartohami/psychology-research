@@ -69,8 +69,21 @@ def dass_pressure_score():
 
 def ptsd_general_score():
     # excel columns: AX:BQ
-    columns = list(range(50, 69 + 1))
-    scores = calculate_score(columns)
+    scores = []
+    criterion_b_column = 77
+    criterion_c_column = 78
+    criterion_d_column = 79
+    criterion_e_column = 80
+    for r in range(2, SHEET_OBJ.max_row+1):
+        score = 0
+        cell_obj_b = SHEET_OBJ.cell(row=r, column=criterion_b_column)
+        cell_obj_c = SHEET_OBJ.cell(row=r, column=criterion_c_column)
+        cell_obj_d = SHEET_OBJ.cell(row=r, column=criterion_d_column)
+        cell_obj_e = SHEET_OBJ.cell(row=r, column=criterion_e_column)
+        if cell_obj_b.value is not None and cell_obj_c is not None and cell_obj_d.value is not None and cell_obj_e.value is not None:
+            if cell_obj_b.value >= 1 and cell_obj_c.value >= 1 and cell_obj_d.value >= 2 and cell_obj_e.value >= 2:
+                score = 1
+        scores.append(score)
     score_column = 76
     SHEET_OBJ.cell(column=score_column, row=1, value="General PTSD Score")
     add_scores_to_file(scores, score_column)
@@ -79,7 +92,7 @@ def ptsd_general_score():
 def criterion_b_score():
     # excel columns: AX:BB
     columns = list(range(50, 54 + 1))
-    scores = calculate_score(columns, check_last_item=True)
+    scores = calculate_pcl_ptsd_score(columns)
     score_column = 77
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion B Score - Re-experiencing")
     add_scores_to_file(scores, score_column)
@@ -88,7 +101,7 @@ def criterion_b_score():
 def criterion_c_score():
     # excel columns: BC:BD
     columns = list(range(55, 56 + 1))
-    scores = calculate_score(columns, check_last_item=True)
+    scores = calculate_pcl_ptsd_score(columns)
     score_column = 78
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion C Score - Avoidance")
     add_scores_to_file(scores, score_column)
@@ -97,7 +110,7 @@ def criterion_c_score():
 def criterion_d_score():
     # excel columns: BE:BK
     columns = list(range(57, 63 + 1))
-    scores = calculate_score(columns, check_last_item=True)
+    scores = calculate_pcl_ptsd_score(columns)
     score_column = 79
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion D Score - Negative alterations in cognition & mood")
     add_scores_to_file(scores, score_column)
@@ -106,8 +119,8 @@ def criterion_d_score():
 def criterion_e_score():
     # excel columns: BL:BQ
     columns = list(range(64, 69 + 1))
-    scores = calculate_score(columns, check_last_item=True)
-    score_column = 78
+    scores = calculate_pcl_ptsd_score(columns)
+    score_column = 80
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion E Score -  Hyper-arousal")
     add_scores_to_file(scores, score_column)
 
@@ -139,6 +152,30 @@ def calculate_score(columns, check_last_item=False, check_one_empty_item=False):
     return scores
 
 
+def calculate_pcl_criterion_score(columns):
+    scores = []
+    for r in range(2, SHEET_OBJ.max_row+1):
+        score = 0
+        for c in columns:
+            cell_obj = SHEET_OBJ.cell(row=r, column=c)
+            if cell_obj.value is not None and isinstance(cell_obj.value, int) and cell_obj.value >= 2:
+                score = score + 1
+        scores.append(score)
+    return scores
+
+
+def calculate_pcl_ptsd_score(columns):
+    scores = []
+    for r in range(2, SHEET_OBJ.max_row+1):
+        score = 0
+        for c in columns:
+            cell_obj = SHEET_OBJ.cell(row=r, column=c)
+            if cell_obj.value is not None and isinstance(cell_obj.value, int) and cell_obj.value >= 2:
+                score = score + 1
+        scores.append(score)
+    return scores
+
+
 def add_scores_to_file(scores, col):
     for i in range(len(scores)):
         insert_value(i+2, col, scores[i])
@@ -155,11 +192,11 @@ def main():
     dass_anxiety_score()
     dass_pressure_score()
     dass_general_score()
-#    ptsd_general_score()
-#    criterion_b_score()
-#    criterion_c_score()
-#    criterion_d_score()
-#    criterion_e_score()
+    criterion_b_score()
+    criterion_c_score()
+    criterion_d_score()
+    criterion_e_score()
+    ptsd_general_score()
     WB_OBJ.save(filename="scores.xlsx")
 
 

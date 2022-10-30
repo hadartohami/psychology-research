@@ -9,7 +9,6 @@ NOT_COMPLETED = "not completed"
 def sh_scoring():
     rows = SHEET_OBJ.iter_rows(min_row=2, max_row=SHEET_OBJ.max_row, min_col=10, max_col=13)
     scores = []
-    d_is_empty = False
     for a, b, c, d in rows:
         score = 0
         if a.value is not None:
@@ -71,9 +70,9 @@ def ptsd_general_score():
     # excel columns: AX:BQ
     scores = []
     criterion_b_column = 77
-    criterion_c_column = 78
-    criterion_d_column = 79
-    criterion_e_column = 80
+    criterion_c_column = 79
+    criterion_d_column = 81
+    criterion_e_column = 83
     for r in range(2, SHEET_OBJ.max_row+1):
         score = 0
         cell_obj_b = SHEET_OBJ.cell(row=r, column=criterion_b_column)
@@ -98,12 +97,30 @@ def criterion_b_score():
     add_scores_to_file(scores, score_column)
 
 
+def criterion_b_percentage_score():
+    column = 77
+    num_of_questions = 5
+    scores = calculate_criterion_ptsd_percentage_score(column, num_of_questions)
+    score_column = 78
+    SHEET_OBJ.cell(column=score_column, row=1, value="Criterion B Score In Percentage - Re-experiencing")
+    add_scores_to_file(scores, score_column)
+
+
 def criterion_c_score():
     # excel columns: BC:BD
     columns = list(range(55, 56 + 1))
     scores = calculate_pcl_ptsd_score(columns)
-    score_column = 78
+    score_column = 79
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion C Score - Avoidance")
+    add_scores_to_file(scores, score_column)
+
+
+def criterion_c_percentage_score():
+    column = 79
+    num_of_questions = 2
+    scores = calculate_criterion_ptsd_percentage_score(column, num_of_questions)
+    score_column = 80
+    SHEET_OBJ.cell(column=score_column, row=1, value="Criterion C Score In Percentage - Avoidance")
     add_scores_to_file(scores, score_column)
 
 
@@ -111,8 +128,17 @@ def criterion_d_score():
     # excel columns: BE:BK
     columns = list(range(57, 63 + 1))
     scores = calculate_pcl_ptsd_score(columns)
-    score_column = 79
+    score_column = 81
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion D Score - Negative alterations in cognition & mood")
+    add_scores_to_file(scores, score_column)
+
+
+def criterion_d_percentage_score():
+    column = 81
+    num_of_questions = 7
+    scores = calculate_criterion_ptsd_percentage_score(column, num_of_questions)
+    score_column = 82
+    SHEET_OBJ.cell(column=score_column, row=1, value="Criterion D Score In Percentage - Negative alterations in cognition & mood")
     add_scores_to_file(scores, score_column)
 
 
@@ -120,9 +146,27 @@ def criterion_e_score():
     # excel columns: BL:BQ
     columns = list(range(64, 69 + 1))
     scores = calculate_pcl_ptsd_score(columns)
-    score_column = 80
+    score_column = 83
     SHEET_OBJ.cell(column=score_column, row=1, value="Criterion E Score -  Hyper-arousal")
     add_scores_to_file(scores, score_column)
+
+
+def criterion_e_percentage_score():
+    column = 83
+    num_of_questions = 6
+    scores = calculate_criterion_ptsd_percentage_score(column, num_of_questions)
+    score_column = 84
+    SHEET_OBJ.cell(column=score_column, row=1, value="Criterion E Score In Percentage-  Hyper-arousal")
+    add_scores_to_file(scores, score_column)
+
+
+def calculate_criterion_ptsd_percentage_score(column, num_of_questions):
+    scores = []
+    for r in range(2, SHEET_OBJ.max_row+1):
+        cell_obj = SHEET_OBJ.cell(row=r, column=column)
+        score = round(((cell_obj.value / num_of_questions) * 100), 2 )
+        scores.append(score)
+    return scores
 
 
 def calculate_score(columns, check_last_item=False, check_one_empty_item=False):
@@ -193,9 +237,13 @@ def main():
     dass_pressure_score()
     dass_general_score()
     criterion_b_score()
+    criterion_b_percentage_score()
     criterion_c_score()
+    criterion_c_percentage_score()
     criterion_d_score()
+    criterion_d_percentage_score()
     criterion_e_score()
+    criterion_e_percentage_score()
     ptsd_general_score()
     WB_OBJ.save(filename="scores.xlsx")
 

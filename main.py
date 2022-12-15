@@ -1,6 +1,6 @@
 import openpyxl
 
-FILE_PATH = './test.xlsx'
+FILE_PATH = './analysis.xlsx'
 WB_OBJ = openpyxl.load_workbook(FILE_PATH)
 SHEET_OBJ = WB_OBJ.active
 NOT_COMPLETED = "not completed"
